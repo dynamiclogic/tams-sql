@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#CCCCCC"
+    android:orientation="vertical"
+    android:paddingTop="1dp" >
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#cc0000"
+        android:padding="5dp"
+        android:text="@string/adduser"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="#FFFFFF" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#FFFFFF"
+        android:orientation="vertical"
+        android:padding="10dp" >
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Asset"
+            android:textSize="20dp"
+            android:layout_alignTop="@+id/name"
+            android:layout_toLeftOf="@+id/name"
+            android:layout_toStartOf="@+id/name"
+            android:layout_marginRight="31dp"
+            android:layout_marginEnd="31dp" />
+
+        <EditText
+            android:id="@+id/name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ems="10" android:hint="@string/hint"
+            android:layout_marginRight="39dp"
+            android:layout_marginEnd="39dp"
+            android:layout_marginTop="34dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true">
+
+            <requestFocus />
+        </EditText>
+
+        <EditText
+            android:id="@+id/editText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="@string/hint"
+            android:layout_below="@+id/name"
+            android:layout_alignLeft="@+id/name"
+            android:layout_alignStart="@+id/name" />
+
+        <Button
+            android:id="@+id/btnadd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/save"
+            android:onClick="addNewUser"
+            android:layout_below="@+id/btnCancel"
+            android:layout_alignLeft="@+id/textView2"
+            android:layout_alignStart="@+id/textView2" />
+        <Button
+            android:id="@+id/btnCancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/cancel"
+            android:onClick="cancelAddUser"
+            android:layout_centerVertical="true"
+            android:layout_alignRight="@+id/editText"
+            android:layout_alignEnd="@+id/editText" />
+
+    </RelativeLayout>
+
+</LinearLayout>
