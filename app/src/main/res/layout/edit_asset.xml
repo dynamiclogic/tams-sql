@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:background="#cc0000"
         android:padding="5dp"
-        android:text="@string/adduser"
+        android:text="@string/editasset"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textColor="#FFFFFF" />
 
@@ -50,23 +50,13 @@
             <requestFocus />
         </EditText>
 
-        <EditText
-            android:id="@+id/editText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="@string/hint"
-            android:layout_below="@+id/name"
-            android:layout_alignLeft="@+id/name"
-            android:layout_alignStart="@+id/name" />
-
         <Button
-            android:id="@+id/btnadd"
+            android:id="@+id/btnedit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/save"
-            android:onClick="addNewUser"
-            android:layout_below="@+id/btnCancel"
+            android:onClick="editAsset"
+            android:layout_below="@+id/name"
             android:layout_alignLeft="@+id/textView2"
             android:layout_alignStart="@+id/textView2" />
         <Button
@@ -74,10 +64,19 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/cancel"
-            android:onClick="cancelAddUser"
-            android:layout_centerVertical="true"
-            android:layout_alignRight="@+id/editText"
-            android:layout_alignEnd="@+id/editText" />
+            android:onClick="cancelEditAsset"
+            android:layout_below="@+id/name"
+            android:layout_centerHorizontal="true" />
+
+        <Button
+            android:id="@+id/btnDelete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/delete"
+            android:onClick="deleteAsset"
+            android:layout_below="@+id/name"
+            android:layout_alignRight="@+id/name"
+            android:layout_alignEnd="@+id/name" />
 
     </RelativeLayout>
 

@@ -6,7 +6,7 @@
 
     <uses-sdk
         android:minSdkVersion="8"
-        android:targetSdkVersion="19" />
+        android:targetSdkVersion="23" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <!-- Permission: Allow application to connect to Internet -->
     <uses-permission android:name="android.permission.INTERNET" />
@@ -21,7 +21,7 @@
         android:theme="@style/AppTheme">
         <activity
             android:name="com.imihov.tamssql.MainActivity"
-            android:label="@string/app_name" android:noHistory="true">
+            android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -29,8 +29,14 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.imihov.tamssql.NewUser"
-            android:label="@string/adduseractivitylabel" android:noHistory="true">
+            android:name=".NewAsset"
+            android:label="@string/addactivitylabel"
+            android:parentActivityName=".MainActivity">
+        </activity>
+        <activity
+            android:name=".EditAsset"
+            android:label="@string/editactivitylabel"
+            android:parentActivityName=".MainActivity">
         </activity>
         <!-- Register MyService -->
         <service

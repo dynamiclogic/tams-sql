@@ -9,27 +9,29 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
-public class NewUser extends Activity {
-    EditText name;
-    DBController controller = new DBController(this);
+public class NewAsset extends Activity {
+    EditText name2;
+    DBController controller;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.add_new_user);
-        name = (EditText) findViewById(R.id.name);
+        setContentView(R.layout.add_new_asset);
+        name2 = (EditText) findViewById(R.id.name2);
+        controller = DBController.getInstance(this);
     }
 
     /**
      * Called when Save button is clicked 
      * @param view
      */
-    public void addNewUser(View view) {
+    public void addNewAsset(View view) {
         HashMap<String, String> queryValues = new HashMap<String, String>();
-        queryValues.put("name", name.getText().toString());
-        if (name.getText().toString() != null
-                && name.getText().toString().trim().length() != 0) {
-            controller.insertLocalUser(queryValues);
+        queryValues.put(Variables._COLUMN_ASSETNAME, name2.getText().toString());
+
+        if (name2.getText().toString() != null
+                && name2.getText().toString().trim().length() != 0) {
+            controller.insertAsset(queryValues);
             this.callHomeActivity(view);
         } else {
             Toast.makeText(getApplicationContext(), "Please enter User name",
@@ -51,7 +53,7 @@ public class NewUser extends Activity {
      * Called when Cancel button is clicked
      * @param view
      */
-    public void cancelAddUser(View view) {
+    public void cancelAddAsset(View view) {
         this.callHomeActivity(view);
     }
 }
