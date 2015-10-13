@@ -24,7 +24,9 @@ import android.widget.Toast;
 import java.util.Observable;
 import java.util.Observer;
 
-
+/**
+ * Created by imihov on 8/26/15.
+ */
 public class MainActivity extends AppCompatActivity implements Observer{
     // DB Class to perform DB related operations
     private DBController controller;
@@ -50,7 +52,7 @@ public class MainActivity extends AppCompatActivity implements Observer{
         if(userList.size()!=0){
             //Set the User Array list in ListView
             ListAdapter adapter = new SimpleAdapter( MainActivity.this,userList, R.layout.view_user_entry, new String[] {
-                    "assetId","name"}, new int[] {R.id.assetId, R.id.name});
+                    Variables._ASSETS_COLUMN_ASSET_ID, Variables._ASSETS_COLUMN_ASSET_NAME}, new int[] {R.id.assetId, R.id.name});
             ListView myList=(ListView)findViewById(android.R.id.list);
             myList.setAdapter(adapter);
             //Display Sync status of SQLite DB
@@ -71,7 +73,7 @@ public class MainActivity extends AppCompatActivity implements Observer{
                     Intent in = new Intent(getApplicationContext(), EditAsset.class);
                     Bundle b = new Bundle();
 
-                    b.putString(Variables._COLUMN_ASSETID, aid);
+                    b.putString(Variables._ASSETS_COLUMN_ASSET_ID, aid);
                     // sending id to next activity
                     in.putExtras(b);
 
@@ -120,7 +122,6 @@ public class MainActivity extends AppCompatActivity implements Observer{
         //When Sync action button is clicked
         if (id == R.id.refresh) {
             //Sync SQLite DB data to remote MySQL DB
-            //dbSync.push();
             dbSync.sync();
             return true;
         }
@@ -131,26 +132,6 @@ public class MainActivity extends AppCompatActivity implements Observer{
         Intent objIntent = new Intent(getApplicationContext(), NewAsset.class);
         startActivity(objIntent);
     }
-
-    // Method to inform remote MySQL DB about completion of Sync activity
-    /*public void updateMySQLSyncSts(String json) {
-        System.out.println(json);
-        AsyncHttpClient client = new AsyncHttpClient();
-        RequestParams params = new RequestParams();
-        params.put("last_timestamp", json);
-        // Make Http call to updatesyncsts.php with JSON parameter which has Sync statuses of Users
-        client.post("http://10.117.243.22:8888/mysqlsqlitesync/updatesyncsts.php", params, new TextHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, String response) {
-                Toast.makeText(getApplicationContext(), "MySQL DB has been informed about Sync activity", Toast.LENGTH_LONG).show();
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, String content, Throwable error) {
-                Toast.makeText(getApplicationContext(), "Error Occured", Toast.LENGTH_LONG).show();
-            }
-        });
-    }*/
 
     // Reload MainActivity
     public void reloadActivity() {

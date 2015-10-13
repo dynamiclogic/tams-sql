@@ -9,6 +9,9 @@ import android.widget.Toast;
 
 import java.util.HashMap;
 
+/**
+ * Created by imihov on 8/26/15.
+ */
 public class EditAsset extends Activity {
     EditText name;
     private DBController controller;
@@ -25,7 +28,7 @@ public class EditAsset extends Activity {
         setContentView(R.layout.edit_asset);
         Bundle b = getIntent().getExtras();
         name = (EditText) findViewById(R.id.name);
-        assetId = b.getString(Variables._COLUMN_ASSETID);
+        assetId = b.getString(Variables._ASSETS_COLUMN_ASSET_ID);
         controller = DBController.getInstance(this);
     }
 
@@ -62,8 +65,8 @@ public class EditAsset extends Activity {
      */
     public void editAsset(View view) {
         HashMap<String, String> queryValues = new HashMap<>();
-        queryValues.put(Variables._COLUMN_ASSETID, assetId);
-        queryValues.put(Variables._COLUMN_ASSETNAME, name.getText().toString());
+        queryValues.put(Variables._ASSETS_COLUMN_ASSET_ID, assetId);
+        queryValues.put(Variables._ASSETS_COLUMN_ASSET_NAME, name.getText().toString());
 
         if (name.getText().toString() != null
                 && name.getText().toString().trim().length() != 0) {

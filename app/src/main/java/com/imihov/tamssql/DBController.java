@@ -12,6 +12,9 @@ import android.database.sqlite.SQLiteOpenHelper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+/**
+ * Created by imihov on 8/26/15.
+ */
 public class DBController extends SQLiteOpenHelper {
 
     private static DBController dbInstance = null;
@@ -34,7 +37,7 @@ public class DBController extends SQLiteOpenHelper {
      * @param ctx
      * @return
      */
-    public static DBController getInstance(Context ctx) {
+    public static final synchronized DBController getInstance(Context ctx) {
         if (dbInstance == null) {
             dbInstance = new DBController(ctx.getApplicationContext());
         }
@@ -44,21 +47,24 @@ public class DBController extends SQLiteOpenHelper {
     //Creates Table
     @Override
     public void onCreate(SQLiteDatabase database) {
-        String query;
-        query = "CREATE TABLE " +Variables._TABLE+ " ( " +
-                Variables._COLUMN_ASSETID   + " INTEGER PRIMARY KEY, " +
-                Variables._COLUMN_ASSETNAME + " TEXT, " +
-                Variables._COLUMN_TIMESTAMP + " INTEGER, " +
-                Variables._COLUMN_NEEDSSYNC + " INTEGER, " +
-                Variables._COLUMN_DELETED   + " INTEGER DEFAULT '0', " +
-                Variables._COLUMN_ISNEW + " INTEGER DEFAULT '0')";
-        database.execSQL(query);
+        database.execSQL(Variables.CREATE_TABLE_ASSETS);
+        database.execSQL(Variables.CREATE_TABLE_LOCATIONS);
+        database.execSQL(Variables.CREATE_TABLE_ASSET_TYPES);
+        database.execSQL(Variables.CREATE_TABLE_MEDIA);
+        database.execSQL(Variables.CREATE_TABLE_ATTRIBUTES);
+        database.execSQL(Variables.CREATE_TABLE_ATTRIBUTES_INDEXES);
+        database.execSQL(Variables.CREATE_TABLE_ATTRIBUTES_VALUES);
     }
     @Override
     public void onUpgrade(SQLiteDatabase database, int version_old, int current_version) {
-        String query;
-        query = "DROP TABLE IF EXISTS " +Variables._TABLE;
-        database.execSQL(query);
+        database.execSQL("DROP TABLE IF EXISTS " +Variables._ASSETS_TABLE);
+        database.execSQL("DROP TABLE IF EXISTS " +Variables._LOCATIONS_TABLE);
+        database.execSQL("DROP TABLE IF EXISTS " +Variables._ASSET_TYPES_TABLE);
+        database.execSQL("DROP TABLE IF EXISTS " +Variables._MEDIA_TABLE);
+        database.execSQL("DROP TABLE IF EXISTS " +Variables._ATTRIBUTES_TABLE);
+        database.execSQL("DROP TABLE IF EXISTS " +Variables._ATTRIBUTES_INDEXES_TABLE);
+        database.execSQL("DROP TABLE IF EXISTS " +Variables._ATTRIBUTES_VALUES_TABLE);
+
         onCreate(database);
     }
 
@@ -67,8 +73,9 @@ public class DBController extends SQLiteOpenHelper {
      * @param queryValues
      */
     protected void insertAsset(HashMap<String, String> queryValues) {
-        String time_stamp = toString().valueOf(System.currentTimeMillis() / 1000L);
-        String assetId = time_stamp;
+        String created_at = toString().valueOf(System.currentTimeMillis() / 1000L);
+        String updated_at = created_at;
+        String assetId = created_at;
         String deleted = "0";
         String needsSync = "1";
         String isNew = "1";
@@ -77,20 +84,22 @@ public class DBController extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
 
         //if the insert is from the server
-        if (queryValues.get(Variables._COLUMN_DELETED) != null ) { deleted = queryValues.get(Variables._COLUMN_DELETED);}
-        if (queryValues.get(Variables._COLUMN_TIMESTAMP) != null ) { time_stamp = queryValues.get(Variables._COLUMN_TIMESTAMP);}
-        if (queryValues.get(Variables._COLUMN_ASSETID) != null ) { assetId = queryValues.get(Variables._COLUMN_ASSETID);}
-        if (queryValues.get(Variables._COLUMN_ISNEW) != null ) { isNew = queryValues.get(Variables._COLUMN_ISNEW);}
-        if (queryValues.get(Variables._COLUMN_NEEDSSYNC) != null ) { needsSync = queryValues.get(Variables._COLUMN_NEEDSSYNC);}
+        if (queryValues.get(Variables._ASSETS_COLUMN_DELETED) != null ) { deleted = queryValues.get(Variables._ASSETS_COLUMN_DELETED);}
+        if (queryValues.get(Variables._ASSETS_COLUMN_CREATED_AT) != null ) { created_at = queryValues.get(Variables._ASSETS_COLUMN_CREATED_AT);}
+        if (queryValues.get(Variables._ASSETS_COLUMN_UPDATED_AT) != null ) { updated_at = queryValues.get(Variables._ASSETS_COLUMN_UPDATED_AT);}
+        if (queryValues.get(Variables._ASSETS_COLUMN_ASSET_ID) != null ) { assetId = queryValues.get(Variables._ASSETS_COLUMN_ASSET_ID);}
+        if (queryValues.get(Variables._ASSETS_COLUMN_ISNEW) != null ) { isNew = queryValues.get(Variables._ASSETS_COLUMN_ISNEW);}
+        if (queryValues.get(Variables._ASSETS_COLUMN_NEEDSSYNC) != null ) { needsSync = queryValues.get(Variables._ASSETS_COLUMN_NEEDSSYNC);}
 
-        values.put(Variables._COLUMN_ASSETID, assetId);
-        values.put(Variables._COLUMN_TIMESTAMP, time_stamp);
-        values.put(Variables._COLUMN_NEEDSSYNC, needsSync);
-        values.put(Variables._COLUMN_DELETED, deleted);
-        values.put(Variables._COLUMN_ISNEW, isNew);
-        values.put(Variables._COLUMN_ASSETNAME, queryValues.get(Variables._COLUMN_ASSETNAME));
+        values.put(Variables._ASSETS_COLUMN_ASSET_ID, assetId);
+        values.put(Variables._ASSETS_COLUMN_CREATED_AT, created_at);
+        values.put(Variables._ASSETS_COLUMN_UPDATED_AT, updated_at);
+        values.put(Variables._ASSETS_COLUMN_NEEDSSYNC, needsSync);
+        values.put(Variables._ASSETS_COLUMN_DELETED, deleted);
+        values.put(Variables._ASSETS_COLUMN_ISNEW, isNew);
+        values.put(Variables._ASSETS_COLUMN_ASSET_NAME, queryValues.get(Variables._ASSETS_COLUMN_ASSET_NAME));
 
-        database.insert(Variables._TABLE, null, values);
+        database.insert(Variables._ASSETS_TABLE, null, values);
         database.close();
     }
 
@@ -99,7 +108,7 @@ public class DBController extends SQLiteOpenHelper {
      * @param queryValues
      */
     protected void updateAsset(HashMap<String, String> queryValues) {
-        String time_stamp = toString().valueOf(System.currentTimeMillis() / 1000L);
+        String updated_at = toString().valueOf(System.currentTimeMillis() / 1000L);
         String deleted = "0";
         String needsSync = "1";
         String isNew = "0";
@@ -107,19 +116,19 @@ public class DBController extends SQLiteOpenHelper {
         SQLiteDatabase database = this.getWritableDatabase();
         ContentValues values = new ContentValues();
 
-        if (queryValues.get(Variables._COLUMN_DELETED) != null ) { deleted = queryValues.get(Variables._COLUMN_DELETED);}
-        if (queryValues.get(Variables._COLUMN_TIMESTAMP) != null ) { time_stamp = queryValues.get(Variables._COLUMN_TIMESTAMP);}
-        if (queryValues.get(Variables._COLUMN_ISNEW) != null ) { isNew = queryValues.get(Variables._COLUMN_ISNEW);}
-        if (queryValues.get(Variables._COLUMN_NEEDSSYNC) != null ) { needsSync = queryValues.get(Variables._COLUMN_NEEDSSYNC);}
-        values.put(Variables._COLUMN_TIMESTAMP, time_stamp);
-        values.put(Variables._COLUMN_DELETED, deleted);
-        values.put(Variables._COLUMN_NEEDSSYNC, needsSync);
-        values.put(Variables._COLUMN_ISNEW, isNew);
+        if (queryValues.get(Variables._ASSETS_COLUMN_DELETED) != null ) { deleted = queryValues.get(Variables._ASSETS_COLUMN_DELETED);}
+        if (queryValues.get(Variables._ASSETS_COLUMN_UPDATED_AT) != null ) { updated_at = queryValues.get(Variables._ASSETS_COLUMN_UPDATED_AT);}
+        if (queryValues.get(Variables._ASSETS_COLUMN_ISNEW) != null ) { isNew = queryValues.get(Variables._ASSETS_COLUMN_ISNEW);}
+        if (queryValues.get(Variables._ASSETS_COLUMN_NEEDSSYNC) != null ) { needsSync = queryValues.get(Variables._ASSETS_COLUMN_NEEDSSYNC);}
+        values.put(Variables._ASSETS_COLUMN_UPDATED_AT, updated_at);
+        values.put(Variables._ASSETS_COLUMN_DELETED, deleted);
+        values.put(Variables._ASSETS_COLUMN_NEEDSSYNC, needsSync);
+        values.put(Variables._ASSETS_COLUMN_ISNEW, isNew);
 
-        if (queryValues.get(Variables._COLUMN_ASSETNAME) != null)
-            values.put(Variables._COLUMN_ASSETNAME, queryValues.get(Variables._COLUMN_ASSETNAME));
+        if (queryValues.get(Variables._ASSETS_COLUMN_ASSET_NAME) != null)
+            values.put(Variables._ASSETS_COLUMN_ASSET_NAME, queryValues.get(Variables._ASSETS_COLUMN_ASSET_NAME));
 
-        database.update(Variables._TABLE, values, Variables._COLUMN_ASSETID + "=" + queryValues.get(Variables._COLUMN_ASSETID), null);
+        database.update(Variables._ASSETS_TABLE, values, Variables._ASSETS_COLUMN_ASSET_ID + "=" + queryValues.get(Variables._ASSETS_COLUMN_ASSET_ID), null);
         database.close();
     }
 
@@ -128,17 +137,17 @@ public class DBController extends SQLiteOpenHelper {
      * @param assetId
      */
     protected void deleteAsset(String assetId) {
-        String time_stamp = toString().valueOf(System.currentTimeMillis() / 1000L);
+        String updated_at = toString().valueOf(System.currentTimeMillis() / 1000L);
         String deleted = "1";
         String needsSync = "1";
 
         SQLiteDatabase database = this.getWritableDatabase();
         ContentValues values = new ContentValues();
 
-        values.put(Variables._COLUMN_DELETED, deleted);
-        values.put(Variables._COLUMN_NEEDSSYNC, needsSync);
-        values.put(Variables._COLUMN_TIMESTAMP, time_stamp);
-        database.update(Variables._TABLE, values, Variables._COLUMN_ASSETID + "=" + assetId, null);
+        values.put(Variables._ASSETS_COLUMN_DELETED, deleted);
+        values.put(Variables._ASSETS_COLUMN_NEEDSSYNC, needsSync);
+        values.put(Variables._ASSETS_COLUMN_UPDATED_AT, updated_at);
+        database.update(Variables._ASSETS_TABLE, values, Variables._ASSETS_COLUMN_ASSET_ID + "=" + assetId, null);
         database.close();
         //System.out.println("Asset Deleted: " + assetId);
     }
@@ -150,7 +159,7 @@ public class DBController extends SQLiteOpenHelper {
     protected void purgeAsset(String assetId) {
         if(hasAsset(assetId)) {
             SQLiteDatabase database = this.getWritableDatabase();
-            database.delete(Variables._TABLE, Variables._COLUMN_ASSETID + "=" + assetId, null);
+            database.delete(Variables._ASSETS_TABLE, Variables._ASSETS_COLUMN_ASSET_ID + "=" + assetId, null);
             database.close();
         }
     }
@@ -162,7 +171,7 @@ public class DBController extends SQLiteOpenHelper {
     protected ArrayList<HashMap<String, String>> getAllAssets() {
         ArrayList<HashMap<String, String>> assetsList;
         assetsList = new ArrayList<>();
-        String selectQuery = "SELECT  * FROM " +Variables._TABLE + " WHERE " +Variables._COLUMN_DELETED + " =0";
+        String selectQuery = "SELECT  * FROM " +Variables._ASSETS_TABLE + " WHERE " +Variables._ASSETS_COLUMN_DELETED + " =0";
         SQLiteDatabase database = this.getWritableDatabase();
         Cursor cursor = database.rawQuery(selectQuery, null);
         if (cursor.moveToFirst()) {
@@ -189,9 +198,9 @@ public class DBController extends SQLiteOpenHelper {
         wordList = new ArrayList<>();
         String selectQuery = "";
         if (needSyncOnly) {
-            selectQuery = "SELECT * FROM " + Variables._TABLE + " WHERE " + Variables._COLUMN_NEEDSSYNC + " = '1'";
+            selectQuery = "SELECT * FROM " + Variables._ASSETS_TABLE + " WHERE " + Variables._ASSETS_COLUMN_NEEDSSYNC + " = '1'";
         } else {
-            selectQuery = "SELECT " + Variables._COLUMN_ASSETID + " FROM " + Variables._TABLE;
+            selectQuery = "SELECT " + Variables._ASSETS_COLUMN_ASSET_ID + " FROM " + Variables._ASSETS_TABLE;
         }
         SQLiteDatabase database = this.getWritableDatabase();
         Cursor cursor = database.rawQuery(selectQuery, null);
@@ -230,7 +239,7 @@ public class DBController extends SQLiteOpenHelper {
      */
     protected int dbSyncCount(){
         int count = 0;
-        String selectQuery = "SELECT * FROM assets where needsSync = '1'";
+        String selectQuery = "SELECT * FROM " + Variables._ASSETS_TABLE + " WHERE " + Variables._ASSETS_COLUMN_NEEDSSYNC + " = '1'";
         SQLiteDatabase database = this.getWritableDatabase();
         Cursor cursor = database.rawQuery(selectQuery, null);
         count = cursor.getCount();
@@ -246,15 +255,15 @@ public class DBController extends SQLiteOpenHelper {
     protected void updateSyncStatus(String assetId, String needsSync){
         SQLiteDatabase database = this.getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put(Variables._COLUMN_NEEDSSYNC, needsSync);
-        database.update(Variables._TABLE, values, Variables._COLUMN_ASSETID + "=" + assetId, null);
+        values.put(Variables._ASSETS_COLUMN_NEEDSSYNC, needsSync);
+        database.update(Variables._ASSETS_TABLE, values, Variables._ASSETS_COLUMN_ASSET_ID + "=" + assetId, null);
         database.close();
         //System.out.println("Asset Sync Status Updated: " + assetId);
     }
 
     protected boolean isAssetDeleted(String id) {
         SQLiteDatabase db = getWritableDatabase();
-        String selectString = "SELECT * FROM " + Variables._TABLE + " WHERE " + Variables._COLUMN_ASSETID + " =? AND "+ Variables._COLUMN_DELETED + "=1";
+        String selectString = "SELECT * FROM " + Variables._ASSETS_TABLE + " WHERE " + Variables._ASSETS_COLUMN_ASSET_ID + " =? AND "+ Variables._ASSETS_COLUMN_DELETED + "=1";
 
         // Add the String you are searching by here.
         // Put it in an array to avoid an unrecognized token error
@@ -272,7 +281,7 @@ public class DBController extends SQLiteOpenHelper {
 
     protected boolean hasAsset(String id) {
         SQLiteDatabase db = getWritableDatabase();
-        String selectString = "SELECT * FROM " + Variables._TABLE + " WHERE " + Variables._COLUMN_ASSETID + " =?";
+        String selectString = "SELECT * FROM " + Variables._ASSETS_TABLE + " WHERE " + Variables._ASSETS_COLUMN_ASSET_ID + " =?";
 
         // Add the String you are searching by here.
         // Put it in an array to avoid an unrecognized token error
@@ -288,9 +297,9 @@ public class DBController extends SQLiteOpenHelper {
         return hasAsset;
     }
 
-    protected int getAssetTimestamp(String id) {
+    protected int getAssetUpdatedTimestamp(String id) {
         SQLiteDatabase db = getWritableDatabase();
-        String selectString = "SELECT " + Variables._COLUMN_TIMESTAMP + " FROM " + Variables._TABLE + " WHERE " + Variables._COLUMN_ASSETID + " =?";
+        String selectString = "SELECT " + Variables._ASSETS_COLUMN_UPDATED_AT + " FROM " + Variables._ASSETS_TABLE + " WHERE " + Variables._ASSETS_COLUMN_ASSET_ID + " =?";
 
         // Add the String you are searching by here.
         // Put it in an array to avoid an unrecognized token error

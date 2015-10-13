@@ -10,6 +10,9 @@ import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.widget.Toast;
 
+/**
+ * Created by imihov on 8/26/15.
+ */
 public class MyService extends Service {
     int numMessages = 0;
 
